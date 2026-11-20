@@ -1,0 +1,20 @@
+<section id="takeaways" class="dark">
+<p class="eyebrow">Takeaways</p>
+<h2>Eight things to remember</h2>
+<div class="split-even" style="gap: 64px;">
+<ul class="points">
+<li><b>Agent[Deps, Output]</b> is a typed container; a run is a loop; ctx is your handle.</li>
+<li><b>The output type is the contract</b>: validate, then ModelRetry.</li>
+<li><b>Everything is a toolset</b>; prefix early, approval is not authorization.</li>
+<li><b>Capabilities are middleware</b>: most v1 kwargs live there now.</li>
+</ul>
+<ul class="points">
+<li><b>One string picks the model</b>; settings stack model &lt; agent &lt; run.</li>
+<li><b>Climb the ladder slowly</b>: agent, delegation, hand-off, graph, durable.</li>
+<li><b>Everything is OpenTelemetry</b>: evals grade answers and trajectories.</li>
+<li><b>Learn offline</b> with 'test', TestModel and FunctionModel.</li>
+</ul>
+</div>
+<p class="foot">Pydantic AI Field Guide · Research notes: six knowledge files in the session scratchpad</p>
+<aside>To recap the whole deck in eight lines: an Agent is a reusable typed container and every run is a graph loop driven through RunContext; the output type decides when a run ends, so validate it against reality and let the model retry; tools, MCP servers and frontend tools are all toolsets that compose with wrappers, and an approval is a UX step, not an authorization check; capabilities are version 2’s middleware and replaced most v1 keyword arguments; a single 'provider:model' string chooses the model class, provider and profile, and settings merge from model to agent to capability to run; move up the multi-agent ladder only as far as you need; everything emits OpenTelemetry, which powers Logfire, trajectory evals and online evals; and the cheapest way to learn all of it is offline with TestModel and FunctionModel. The full research notes behind this deck (about 230 KB across six files: core, tools and capabilities, models and realtime, multi-agent and evals, harness, examples) include more examples, gotchas and doc inconsistencies found along the way.</aside>
+</section>

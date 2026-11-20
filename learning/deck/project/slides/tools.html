@@ -1,0 +1,20 @@
+<section id="tools">
+<p class="eyebrow">03 · Tools &amp; capabilities</p>
+<h2>A tool is a typed function the model may call</h2>
+<div class="split">
+<div class="code">
+<p>agent = Agent(<span class="s">'test'</span>, deps_type=str)<br><br><span class="k">@agent.tool</span>&#160;&#160;<span class="c"># takes RunContext first</span><br><span class="k">def</span> player(ctx: RunContext[str]) -&gt; str:<br>&#160;&#160;&#160;&#160;<span class="s">"""Get the player's name."""</span><br>&#160;&#160;&#160;&#160;<span class="k">return</span> ctx.deps<br><br><span class="k">@agent.tool_plain</span>(require_parameter_descriptions=<span class="k">True</span>)<br><span class="k">def</span> convert(amount: float, to: str) -&gt; str:<br>&#160;&#160;&#160;&#160;<span class="s">"""Convert USD to another currency.</span><br><span class="s">&#160;&#160;&#160;&#160;Args:</span><br><span class="s">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;amount: Amount in USD.</span><br><span class="s">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;to: ISO 4217 currency code.</span><br><span class="s">&#160;&#160;&#160;&#160;"""</span><br>&#160;&#160;&#160;&#160;<span class="k">return</span> rates.convert(amount, to)</p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>Signature → JSON schema</b>; args are validated by Pydantic before your code runs.</li>
+<li><b>Docstring → descriptions</b> (Google, NumPy, Sphinx styles via Griffe).</li>
+<li>Prefer <b>async def</b>: sync tools run in a thread pool.</li>
+<li>Return text, models, images or <b>ToolReturn</b> (value + extra content + app-only metadata).</li>
+<li>Calls in one response run <b>in parallel</b>; sequential=True makes a barrier.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Tools · docs/tools.md, docs/tools-advanced.md</p>
+<aside>@agent.tool functions take RunContext as their first parameter, giving access to deps, ctx.retry, ctx.tool_call_id and ctx.enqueue. @agent.tool_plain functions take no context. You can also pass functions or Tool objects in Agent(tools=[...]). Every parameter except RunContext goes into the schema, and Griffe parses the docstring into the tool description and per-parameter descriptions; only the description, Args, the first Returns entry and Note or Warning sections are sent. Tool(fn, ...) makes a reusable definition with options such as prepare, strict, requires_approval and defer_loading, and Tool.from_schema wraps functions that have no usable signature (it does not validate arguments). A per-tool prepare(ctx, tool_def) can hide or rewrite the tool on each step, for example to show admin tools only to admins; use dataclasses.replace rather than building a fresh ToolDefinition. ToolReturn splits the result into return_value for the model, content as a separate user message (screenshots), and metadata the model never sees. Tool search: defer_loading=True plus the ToolSearch capability hides large tool catalogs until the model searches for them.</aside>
+</section>

@@ -1,0 +1,13 @@
+<section id="ladder">
+<p class="eyebrow">05 · Multi-agent</p>
+<h2>Climb the complexity ladder only as far as you need</h2>
+<div class="stack" style="gap: 0;">
+<div class="rung" style="--i:0"><p class="n">1</p><h3>Single agent</h3><p>One model, tools and a typed output. Most apps stop here.</p></div>
+<div class="rung" style="--i:1"><p class="n">2</p><h3>Delegation</h3><p>A tool awaits a child agent and returns its output; budgets are shared.</p></div>
+<div class="rung" style="--i:2"><p class="n">3</p><h3>Programmatic hand-off</h3><p>Your code, or a human, decides which agent runs next.</p></div>
+<div class="rung" style="--i:3"><p class="n">4</p><h3>Graphs</h3><p>Typed state machines or parallel dataflow built with GraphBuilder.</p></div>
+<div class="rung" style="--i:4"><p class="n">5</p><h3>Durable &amp; deep agents</h3><p>Engines survive crashes and long waits; Harness adds planning, sub-agents and sandboxes.</p></div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Multi-agent · docs/multi-agent-applications.md</p>
+<aside>This ladder comes straight from docs/multi-agent-applications.md, which warns against reaching for graphs too early: “don’t use a nail gun unless you need a nail gun”. A single agent with good tools and a typed output solves a surprising amount. Delegation is the next step: a tool calls another agent, perhaps a cheaper model with a different output type or a clean context, and control returns to the parent. Programmatic hand-off is plain Python: run one agent, inspect its typed output, and decide what runs next, possibly after asking a human. Graphs give you an explicit, diagrammable state machine and real parallelism with map and join. At the top, durable execution engines (Temporal, DBOS, Prefect, Restate, Airflow) keep runs alive across crashes and multi-day waits, and Harness capabilities such as SubAgents, Planning and sandboxes build “deep agents”. Evals and Logfire are the development loop around every rung.</aside>
+</section>

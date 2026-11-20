@@ -1,0 +1,22 @@
+<section id="hitl" class="alt">
+<p class="eyebrow">03 · Tools &amp; capabilities</p>
+<h2>Human-in-the-loop: pause the run, resume with answers</h2>
+<div class="split">
+<div class="code">
+<p>agent = Agent(<span class="s">'anthropic:claude-sonnet-5-5'</span>,<br>&#160;&#160;&#160;&#160;output_type=[str, DeferredToolRequests])<br><br><span class="k">@agent.tool_plain</span>(requires_approval=<span class="k">True</span>)<br><span class="k">def</span> delete_file(path: str) -&gt; str:<br>&#160;&#160;&#160;&#160;<span class="k">return</span> f<span class="s">'deleted {path}'</span><br><br>r = agent.run_sync(<span class="s">'Delete tmp.txt'</span>)<br>req = r.output&#160;&#160;<span class="c"># DeferredToolRequests</span><br>res = req.build_results(approvals={<br>&#160;&#160;&#160;&#160;c.tool_call_id: ToolDenied(<span class="s">'No deletes'</span>)<br>&#160;&#160;&#160;&#160;<span class="k">for</span> c <span class="k">in</span> req.approvals})<br>r = agent.run_sync(message_history=r.all_messages(),<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;deferred_tool_results=res)</p>
+</div>
+<div class="stack">
+<p class="label">Three ways to defer</p>
+<ul class="points">
+<li><b>requires_approval=True</b>: always ask.</li>
+<li><b>raise ApprovalRequired</b>: ask only sometimes.</li>
+<li><b>raise CallDeferred</b>: run it elsewhere, answer later.</li>
+</ul>
+<p class="label" style="margin-top: 8px;">Or resolve inline</p>
+<p class="lede" style="font-size: 28px;">HandleDeferredToolCalls(policy) approves in the same run, e.g. refunds ≤ $100.</p>
+<p class="lede" style="font-size: 28px; color: #B83A1B;">Approval is UX, not authorization: check permissions inside the tool.</p>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Tools · docs/deferred-tools.md</p>
+<aside>Deferred tools end the run with a DeferredToolRequests output, which has approvals, calls, metadata and validated_args. Include DeferredToolRequests in output_type, and remember that a run-time output_type replaces the agent’s, so pass both. To resume, run again with the message history and DeferredToolResults: approvals map tool call IDs to True, False, ToolApproved(override_args=...) or ToolDenied(message); calls map IDs to a value, ToolReturn, ModelRetry or ToolFailed. To pause across processes, store result.conversation with ConversationTypeAdapter and resume later with conversation=. The HandleDeferredToolCalls capability resolves requests inside the same run, through a policy function or a resume token that an approver answers via resolve_external_event; on AWS Lambda durable functions that wait is itself durable. Show approvers validated_args so they see exactly what will run. Security: UI clients submit approvals themselves, so an approval is not proof of authorization. Use cases: destructive file or DB operations, payments, emails, long-running external jobs.</aside>
+</section>

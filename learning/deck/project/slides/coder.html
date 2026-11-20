@@ -1,0 +1,19 @@
+<section id="coder">
+<p class="eyebrow">07 · Harness</p>
+<h2>A sandboxed coding agent in a few lines</h2>
+<div class="split" style="grid-template-columns: 1.6fr 1fr;">
+<div class="code">
+<p>agent = Agent(<span class="s">'anthropic:claude-opus-5-5'</span>, capabilities=[<br>&#160;&#160;&#160;&#160;DockerContainer(image=<span class="s">'python:3.13-slim'</span>,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;allow_internet_access=<span class="k">False</span>),<br>&#160;&#160;&#160;&#160;Coder(),<br>])<br>result = agent.run_sync(<span class="s">'Print the first 10 primes; run it.'</span>)<br>ref = result.workspace.ref&#160;&#160;<span class="c"># persist it</span><br>later = agent.run_sync(<span class="s">'Now the first 100.'</span>, workspace=ref)<br><span class="k">await</span> DockerContainer().destroy(ref)&#160;&#160;<span class="c"># runs never do</span><br><br><span class="c"># zero code: a terminal coding agent</span><br><span class="c"># uvx --with "pydantic-ai-harness[coder]" clai \</span><br><span class="c">#&#160;&#160;&#160;-a pydantic_ai_harness.coder:coder_agent</span></p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>Coder</b> = FileSystem + Shell + RepoContext + self-delegation + context control.</li>
+<li>Swap DockerContainer for Modal, E2B or Kubernetes in <b>one line</b>.</li>
+<li><b>LocalWorkspace is not a sandbox</b>: it runs with your permissions.</li>
+<li>Never pass <b>os.environ</b> as env: it leaks API keys.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Harness · docs/harness/coder.md, docker-container.md, docs/workspace.md</p>
+<aside>Workspaces are the hinge of the Harness: ctx.workspace gives tools somewhere to run commands and edit files, and the same agent code works on a local directory or a cloud sandbox. Sandboxes are created on first use, outlive the run (cloud ones keep billing), continue via message history, and can be reattached with result.workspace.ref passed as workspace=ref. Nothing destroys them for you, and a failed run gives no ref, so clean up in a Hooks on.run_error hook. Coder bundles FileSystem (read, write, edit, grep with root containment), a persistent shell, RepoContext (loads AGENTS.md and CLAUDE.md), SubAgents(include_self=True), ClearToolResults compaction, RepairToolArguments and caching. Install the [coder] extra for json-repair and ripgrep. Bind Coder on the Agent, not on run(). autonomy='low' to 'max' is prompt guidance, not enforcement; use Permissions for that. Commands get only PATH, HOME, LANG and LC_* unless you pass env= explicitly. Docker shares the host kernel and its default network can reach your LAN; microVM sandboxes (SmolSandbox, BoxLite) or cloud VMs isolate more. Exercise: rebuild Coder from its parts, then change one knob and measure turns and tokens.</aside>
+</section>

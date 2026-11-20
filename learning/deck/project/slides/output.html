@@ -1,0 +1,21 @@
+<section id="output">
+<p class="eyebrow">02 · Core agent</p>
+<h2>The output type is the contract</h2>
+<div class="split">
+<div class="code">
+<p><span class="k">class</span> Box(BaseModel):<br>&#160;&#160;&#160;&#160;width: int<br>&#160;&#160;&#160;&#160;height: int<br>&#160;&#160;&#160;&#160;units: str<br><br>extractor = Agent(<br>&#160;&#160;&#160;&#160;<span class="s">'openai:gpt-6-luna'</span>,<br>&#160;&#160;&#160;&#160;output_type=[Box, str],&#160;&#160;<span class="c"># data, or ask back</span><br>&#160;&#160;&#160;&#160;instructions=<span class="s">'Extract box dims or ask.'</span>)<br>extractor.run_sync(<span class="s">'The box is 10x20 cm'</span>).output<br><span class="c"># Box(width=10, height=20, units='cm')</span><br><br>triage = Agent(<span class="s">'openai:gpt-6.1-sol'</span>,<br>&#160;&#160;&#160;&#160;output_type=Choices({<span class="s">'refund'</span>: <span class="s">'Wants money back.'</span>,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="s">'replace'</span>: <span class="s">'Wants a new unit.'</span>}))</p>
+</div>
+<div class="stack">
+<p class="label">Output modes</p>
+<ul class="points">
+<li><b>ToolOutput</b> (default): an output tool the model calls.</li>
+<li><b>NativeOutput</b>: the provider’s JSON-schema mode.</li>
+<li><b>PromptedOutput</b>: schema in the prompt; good for weak or local models.</li>
+<li><b>TextOutput(fn)</b>: plain text passed through your function.</li>
+</ul>
+<p class="lede" style="font-size: 28px; margin-top: 8px;">Also: unions, lists, TypedDicts, dataclasses, scalars, BinaryImage, and output functions that end the run.</p>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Core agent · docs/output.md</p>
+<aside>output_type decides what ends a run and what result.output is. Each member of a union or list becomes its own output tool, so [Box, str] lets the model either return data or ask a clarifying question. Choices, new in version 2, is for options known only at run time, and Choice(desc, value=...) maps a key to an object or a callable action. StructuredDict(schema) takes a raw JSON schema but is not validated. An output function, passed as output_type, must be called by the model; its return value becomes the output, it can take ctx and raise ModelRetry. That is also how a router agent hands off to sub-agents. Modes: ToolOutput is the default and takes name, description, max_retries and strict; NativeOutput uses the provider’s structured-output mode; PromptedOutput puts the schema in the instructions. Gotchas: text cut off by the token limit is still returned, so check result.response.finish_reason == 'length'; structured output cut off raises OutputTokenLimitExceeded. Use case ideas: invoice-to-JSON, contact extraction, ticket classification.</aside>
+</section>

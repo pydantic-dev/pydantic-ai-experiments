@@ -1,0 +1,20 @@
+<section id="mcp">
+<p class="eyebrow">03 · Tools &amp; capabilities</p>
+<h2>MCP: plug in any tool server, or become one</h2>
+<div class="split">
+<div class="code">
+<p>server = FastMCP(<span class="s">'math'</span>)<br><br><span class="k">@server.tool</span>()<br><span class="k">async def</span> add(a: int, b: int) -&gt; int:<br>&#160;&#160;&#160;&#160;<span class="k">return</span> a + b<br><br>agent = Agent(<span class="s">'anthropic:claude-sonnet-5-5'</span>, toolsets=[<br>&#160;&#160;&#160;&#160;MCPToolset(server, id=<span class="s">'math'</span>),&#160;&#160;<span class="c"># in-process</span><br>&#160;&#160;&#160;&#160;MCPToolset(<span class="s">'http://localhost:8000/mcp'</span>),<br>&#160;&#160;&#160;&#160;MCPToolset(StdioTransport(command=<span class="s">'python'</span>,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;args=[<span class="s">'mcp_server.py'</span>])).prefixed(<span class="s">'local'</span>),<br>])<br><br><span class="c"># recommended shortcut: a capability</span><br>docs = MCP(<span class="s">'https://mcp.example.com/api'</span>, id=<span class="s">'docs'</span>)</p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>MCP(url)</b> capability: local by default, native=True for provider-side MCP.</li>
+<li><b>MCPToolset</b> (FastMCP-based) for lifecycle control; async with agent keeps connections open.</li>
+<li><b>Sampling &amp; elicitation</b>: servers can use your LLM or ask the user.</li>
+<li><b>MCPSamplingModel</b> runs an agent inside an MCP tool, no server keys needed.</li>
+</ul>
+<p class="lede" style="font-size: 24px;">v2 removed MCPServerStdio / SSE / StreamableHTTP.</p>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Tools · docs/mcp/client.md, docs/mcp/server.md, docs/capabilities/mcp.md</p>
+<aside>MCP shows up three ways. MCPToolset is the client toolset, built on FastMCP; its first argument can be a URL (Streamable HTTP, or SSE if the path ends in /sse), a .py or .js script run over stdio, a FastMCP transport or Client, or an in-process FastMCP server, which is perfect for testing with no network. Useful options: id, tool_error_behavior ('retry', 'failed' or 'error'), cache_tools, sampling_model, elicitation_handler, auth (a function of ctx for per-user credentials). load_mcp_toolsets('mcp_config.json') reads Claude-Desktop-style config files, but those can spawn arbitrary commands, so only use files you trust. MCPServerTool is the provider-native version. The MCP capability chooses between them and, unlike MCPToolset, includes server instructions, which carry operator authority. To expose an agent as an MCP server, put it inside a FastMCP tool and run it with MCPSamplingModel(session=ctx.session), so its LLM calls go back through the client. Gotcha: FastMCP 4 defaults to a protocol that forbids mid-tool-call sampling and elicitation (NoBackChannelError); use FastMCP 3 or Client(..., mode='legacy').</aside>
+</section>

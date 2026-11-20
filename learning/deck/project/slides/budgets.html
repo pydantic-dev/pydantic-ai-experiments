@@ -1,0 +1,15 @@
+<section id="budgets">
+<p class="eyebrow">02 · Core agent</p>
+<h2>Every failure mode has its own budget</h2>
+<div class="code">
+<p>agent = Agent(<span class="s">'anthropic:claude-sonnet-5-5'</span>, tool_timeout=30, retries={<span class="s">'tools'</span>: 3, <span class="s">'output'</span>: 2},<br>&#160;&#160;&#160;&#160;capabilities=[RetryOnModelErrors(max_attempts=4), ModelFallback(<span class="s">'openai:gpt-6.1-sol'</span>), Caching()])<br><br>limits = UsageLimits(request_limit=25, cost_limit=Decimal(<span class="s">'0.50'</span>))&#160;&#160;<span class="c"># USD, via genai-prices</span><br>result = <span class="k">await</span> agent.run(prompt, usage_limits=limits, timeout=120)&#160;&#160;<span class="c"># RunTimedOut after 2 min</span></p>
+</div>
+<div class="cards4" style="margin-top: 36px;">
+<div class="card" style="--i:0"><p class="api">UsageLimits</p><h3>Spend</h3><p>Requests (default 50), tool calls, tokens, cost. Raises UsageLimitExceeded.</p></div>
+<div class="card" style="--i:1"><p class="api">retries=</p><h3>Retries</h3><p>Separate tool and output budgets. Nine layers exist and they multiply: pick one owner.</p></div>
+<div class="card" style="--i:2"><p class="api">timeout</p><h3>Time</h3><p>Per attempt, per request, per tool, per run. ctx.remaining_time() inside tools.</p></div>
+<div class="card" style="--i:3"><p class="api">capture_run_messages</p><h3>Recovery</h3><p>Failed runs keep history; resume with no new prompt and finished tools don’t re-run.</p></div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Core agent · docs/retries.md, docs/timeouts.md, docs/production.md</p>
+<aside>This is close to the production recipe from docs/production.md. UsageLimits caps a single run: request_limit defaults to 50, plus tool_calls_limit, token limits and cost_limit in US dollars, estimated with genai-prices. Token and cost limits are checked after billing, and limits reset per run unless you pass conversation=. Retries: ModelRetry from a tool or validator asks the model to fix things and consumes budget; ToolFailed reports a definitive failure without consuming budget; RetryOnModelErrors retries 429s and 5xx; ModelFallback switches models. The docs list nine retry layers (transport, SDK, durable engine, RetryOnModelErrors, fallback, RetryModelRequest, tool, output, hooks) and warn that they multiply, so choose one layer to own retries and set the SDK’s max_retries to 0 when you use fallback. Timeouts: model_settings timeout is one attempt, request_timeout is one clock across attempts, first_event_timeout lets a fallback take over a stalled stream, tool_timeout bounds tools, and run(timeout=) raises RunTimedOut with resumable messages. capture_run_messages() keeps the history of a run that raised, so you can resume it.</aside>
+</section>

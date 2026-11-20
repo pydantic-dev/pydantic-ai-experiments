@@ -1,0 +1,19 @@
+<section id="trajectory" class="alt">
+<p class="eyebrow">06 · Quality</p>
+<h2>Grade the trajectory, not just the answer</h2>
+<div class="split">
+<div class="code">
+<p>logfire.configure(send_to_logfire=<span class="s">'if-token-present'</span>)<br>logfire.instrument_pydantic_ai()&#160;&#160;<span class="c"># spans to grade</span><br>evaluators = [<br>&#160;&#160;&#160;&#160;ToolCorrectness(expected_tools=[<span class="s">'search'</span>, <span class="s">'rerank'</span>],<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;allow_extra=<span class="k">True</span>),<br>&#160;&#160;&#160;&#160;TrajectoryMatch(expected_trajectory=[<span class="s">'search'</span>, <span class="s">'rerank'</span>],<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;order=<span class="s">'in_order'</span>),<br>&#160;&#160;&#160;&#160;MaxToolCalls(max_calls=5),<br>]<br><span class="c"># online: score production traffic in the background</span><br>agent = Agent(<span class="s">'openai:gpt-6.1-sol'</span>, name=<span class="s">'support'</span>,<br>&#160;&#160;&#160;&#160;capabilities=[OnlineEvaluation(evaluators=[<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;not_empty,&#160;&#160;<span class="c"># every run</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;OnlineEvaluator(evaluator=LLMJudge(rubric=<span class="s">'Polite'</span>),<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;sample_rate=0.05)])])&#160;&#160;<span class="c"># 5% of runs</span></p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>Trajectory evaluators</b> check which tools ran, in what order, with what args; no LLM calls.</li>
+<li><b>HasMatchingSpan</b> asserts things like “delete_* was never called”.</li>
+<li>Span names are <b>invoke_agent X</b> and <b>execute_tool Y</b>.</li>
+<li>Online results are OTel <b>gen_ai.evaluation.result</b> events.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Evals · docs/evals/evaluators/agentic.md, span-based.md, online-evaluation.md</p>
+<aside>Final answers can be right for the wrong reasons. Span-based evaluation grades the process using the OpenTelemetry spans captured while the task ran. HasMatchingSpan takes a SpanQuery that can match names, attributes, status and duration, combine conditions with not_, and_ and or_, and walk the tree with child_has, descendant_has and ancestor_has. To assert something never happened, root the query on a span and use no_descendant_has, because a top-level not_ passes if any single span fails the condition. The agentic evaluators are deterministic: ToolCorrectness compares the multiset of tools called, TrajectoryMatch scores call order as an F1 (exact, in_order or any_order), ArgumentCorrectness checks arguments, and MaxToolCalls and MaxModelRequests enforce budgets. Only local tools count, and sub-agent calls do count. Online evaluation reuses the same evaluators on live runs, through the OnlineEvaluation capability or the @evaluate decorator, with per-evaluator sample rates and concurrency; results are dispatched after the run completes and show up in Logfire as Live Evaluations. Under durable engines, pass OnlineEvaluation(id='...').</aside>
+</section>

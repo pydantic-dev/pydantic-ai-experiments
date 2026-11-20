@@ -1,0 +1,26 @@
+<section id="model" class="alt">
+<p class="eyebrow">01 · Mental model</p>
+<h2>An agent is a typed container; a run is a loop</h2>
+<div class="flow">
+<div class="node" style="--i:0"><h3>User prompt</h3><p>Prompt plus instructions and history</p></div>
+<x-shape kind="arrow-right" class="arrow"></x-shape>
+<div class="node" style="--i:1"><h3>Model request</h3><p>Model sees tools and the output schema</p></div>
+<x-shape kind="arrow-right" class="arrow"></x-shape>
+<div class="node" style="--i:2"><h3>Call tools</h3><p>Validated args, results go back to the model</p></div>
+<x-shape kind="arrow-right" class="arrow"></x-shape>
+<div class="node end" style="--i:3"><h3>End</h3><p>Output matches output_type</p></div>
+</div>
+<p class="lede" style="margin-top: 28px;">Model request and tool calls repeat until the output validates, or a limit, timeout or cancellation stops the run.</p>
+<p class="label" style="margin-top: 8px;">What goes into Agent[Deps, Output]</p>
+<div class="chips">
+<p class="chip">model</p>
+<p class="chip">instructions</p>
+<p class="chip">tools / toolsets</p>
+<p class="chip">output_type</p>
+<p class="chip">deps_type</p>
+<p class="chip">model_settings</p>
+<p class="chip">capabilities</p>
+</div>
+<p class="foot">Pydantic AI Field Guide · Mental model · docs/agent.md</p>
+<aside>The Agent is a reusable, typed container. You create it once at module level. Agent[DepsT, OutputT] means type checkers catch mistakes such as the wrong RunContext type in a tool or the wrong output type. A run (run, run_sync, run_stream, run_stream_events or iter) is a loop over pydantic-graph nodes: UserPromptNode, then ModelRequestNode, then CallToolsNode, repeating until the model produces something that validates against output_type. RunContext, usually called ctx, is your handle into the run: it carries your typed deps plus usage, retry count, run step, messages and the deadline, and offers emit, enqueue and cancel. In version 2, most of the old Agent keyword arguments became capabilities: reusable bundles of tools, hooks, instructions and settings.</aside>
+</section>

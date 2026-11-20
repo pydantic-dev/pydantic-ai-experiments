@@ -1,0 +1,19 @@
+<section id="testing" class="alt">
+<p class="eyebrow">02 · Core agent</p>
+<h2>Test your code offline; use evals for answer quality</h2>
+<div class="split" style="grid-template-columns: 1.7fr 1fr;">
+<div class="code">
+<p><span class="k">from</span> pydantic_ai.models.test <span class="k">import</span> TestModel<br><span class="k">from</span> pydantic_ai.models.function <span class="k">import</span> AgentInfo, FunctionModel<br><br>models.ALLOW_MODEL_REQUESTS = <span class="k">False</span>&#160;&#160;<span class="c"># block real calls</span><br>agent = Agent(<span class="s">'openai:gpt-6.1-sol'</span>, defer_model_check=<span class="k">True</span>)<br><br><span class="k">def</span> scripted(messages, info: AgentInfo) -&gt; ModelResponse:<br>&#160;&#160;&#160;&#160;names = [t.name <span class="k">for</span> t <span class="k">in</span> info.function_tools]<br>&#160;&#160;&#160;&#160;<span class="k">return</span> ModelResponse(parts=[TextPart(f<span class="s">'tools={names}'</span>)])<br><br><span class="k">def</span> test_agent():<br>&#160;&#160;&#160;&#160;tm = TestModel(custom_output_text=<span class="s">'Sunny'</span>)<br>&#160;&#160;&#160;&#160;<span class="k">with</span> agent.override(model=tm):<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">assert</span> agent.run_sync(<span class="s">'Weather?'</span>).output == <span class="s">'Sunny'</span><br>&#160;&#160;&#160;&#160;<span class="k">with</span> agent.override(model=FunctionModel(scripted)):<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">assert</span> agent.run_sync(<span class="s">'Hi'</span>).output == <span class="s">'tools=[]'</span></p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>TestModel</b> calls every tool, then returns schema-valid output.</li>
+<li><b>FunctionModel</b> scripts exact responses, tool calls included.</li>
+<li><b>override()</b> swaps model and deps without touching app code.</li>
+<li>Inspect <b>last_model_request_parameters</b> to see the tool schemas you generated.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Core agent · docs/testing.md</p>
+<aside>Unit tests should check your code, not the model. Set models.ALLOW_MODEL_REQUESTS = False in your test setup so nothing accidentally calls a real provider, and build agents with defer_model_check=True so tests need no API key. TestModel takes custom_output_text, custom_output_args and call_tools to shape what it does. FunctionModel(fn) gets the message list and an AgentInfo (including function_tools and model settings) and returns any ModelResponse you like, so you can script a text-plus-tool-call response and check how your agent handles it. Combine capture_run_messages() with dirty_equals to assert on the exact messages. Limitations: TestModel ignores regex pattern constraints and cannot emulate native provider tools, so use override(native_tools=[]). For answer quality, use Pydantic Evals (section 6). Learning tip: these two models are the cheapest way to explore every feature in this deck.</aside>
+</section>

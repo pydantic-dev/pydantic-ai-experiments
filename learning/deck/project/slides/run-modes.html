@@ -1,0 +1,18 @@
+<section id="run-modes">
+<p class="eyebrow">02 · Core agent</p>
+<h2>Five ways to run the same agent</h2>
+<table>
+<tr><th style="width: 24%;">Method</th><th style="width: 30%;">You get</th><th>Reach for it when</th></tr>
+<tr><td>run_sync()</td><td>AgentRunResult</td><td>Scripts and quick experiments (in Jupyter, use await agent.run)</td></tr>
+<tr><td>await run()</td><td>AgentRunResult</td><td>Async servers such as FastAPI handlers</td></tr>
+<tr><td>run_stream()</td><td>StreamedRunResult</td><td>Streaming text or partial structured output to a UI</td></tr>
+<tr><td>run_stream_events()</td><td>Event stream, then AgentRunResultEvent</td><td>You need every event, including tool calls and results</td></tr>
+<tr><td>iter()</td><td>AgentRun, node by node</td><td>Custom logic between steps, or editing a node before it runs</td></tr>
+</table>
+<div class="cards2" style="margin-top: 40px;">
+<div class="card" style="--i:0"><h3>Gotcha: run_stream stops early</h3><p>The first output matching output_type is final; tool calls after streamed text are not executed. Use run_stream_events or iter when tools must run.</p></div>
+<div class="card" style="--i:1"><h3>Per-run overrides</h3><p>Every method accepts model, output_type, instructions, capabilities, retries, timeout, cancellation_token, conversation and metadata.</p></div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Core agent · docs/agent.md#running-agents</p>
+<aside>All five methods drive the same graph loop; they differ in how much of it you see. run_sync is a blocking wrapper around run. run_stream is a context manager whose StreamedRunResult offers stream_text, stream_output (partially validated snapshots), get_output and cancel. Its big gotcha: it treats the first output that matches the output type as final, so tool calls that come after streamed text are not executed. run_stream_events yields PartStartEvent, PartDeltaEvent, FunctionToolCallEvent, FunctionToolResultEvent and FinalResultEvent, and ends with AgentRunResultEvent carrying the result. iter gives you an AgentRun you can async-iterate; use Agent.is_model_request_node and is_call_tools_node to branch, or drive it manually with await run.next(node). You can also emit your own CustomEvent dataclasses from tools with await ctx.emit(...) and listen with @agent.on_event. Experiment: send one prompt through all five and log what each shows you.</aside>
+</section>

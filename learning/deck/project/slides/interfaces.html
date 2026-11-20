@@ -1,0 +1,16 @@
+<section id="interfaces">
+<p class="eyebrow">04 · Models &amp; interfaces</p>
+<h2>One agent, many surfaces</h2>
+<div class="cards4">
+<div class="card" style="--i:0"><p class="api">clai -m &lt;model&gt;</p><h3>Terminal</h3><p>Chat with any model, or clai --agent mod:agent.</p></div>
+<div class="card" style="--i:1"><p class="api">agent.to_web()</p><h3>Dev web chat</h3><p>Model picker, tool toggles, approval prompts. For development only.</p></div>
+<div class="card" style="--i:2"><p class="api">AGUIAdapter</p><h3>AG-UI frontends</h3><p>CopilotKit protocol: shared state, frontend tools, approval interrupts.</p></div>
+<div class="card" style="--i:3"><p class="api">VercelAIAdapter</p><h3>Vercel AI SDK</h3><p>Data Stream Protocol for useChat. Use sdk_version=6 for approvals.</p></div>
+<div class="card" style="--i:4"><p class="api">agent.realtime()</p><h3>Voice</h3><p>Live audio sessions with the same tools, deps and history.</p></div>
+<div class="card" style="--i:5"><p class="api">MCP server</p><h3>Other clients</h3><p>Expose the agent inside a FastMCP tool for Claude Desktop or Cursor.</p></div>
+<div class="card" style="--i:6"><p class="api">Harness ACP</p><h3>Editors</h3><p>Serve the agent to Zed and others over Agent Client Protocol.</p></div>
+<div class="card hot" style="--i:7"><p class="api">trust model</p><h3>Server owns history</h3><p>Clients send history; use manage_message_history='server'.</p></div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Interfaces · docs/interfaces.md, docs/ui/*.md, docs/web.md, docs/cli.md</p>
+<aside>All surfaces reuse the same Agent object, so tools, deps, approvals and history behave the same everywhere. clai is a terminal chat (uvx clai), with /usage, /markdown and /multiline commands and an --mcp-config flag for Claude-Desktop-style MCP configs. agent.to_web(models={...}) returns a Starlette app served on 127.0.0.1:7932, with a model picker and approval buttons; it only answers localhost or IP Host headers unless you pass allowed_hosts. For production frontends, AGUIAdapter.dispatch_request(request, agent=...) and VercelAIAdapter.dispatch_request(request, agent=..., sdk_version=6) convert a frontend request into run_stream_events and stream protocol events back as server-sent events. Agent.to_ag_ui() was removed in version 2. Trust model: the client sends the whole history, so the endpoint is not an auth boundary. The adapters strip client system prompts, drop dangling tool calls and reject non-JSON; prefer manage_message_history='server' and save result.all_messages() in on_complete. For a stop button, use a CancellationToken on a separate endpoint, since a client disconnect is not first-party cancellation. A2A (fasta2a) exposes agents to other agents.</aside>
+</section>

@@ -1,0 +1,20 @@
+<section id="hello">
+<p class="eyebrow">01 · First agent</p>
+<h2>Your first agent runs with no API key</h2>
+<div class="split">
+<div class="code">
+<p><span class="k">from</span> pydantic_ai <span class="k">import</span> Agent, RunContext<br><br>roulette = Agent(<br>&#160;&#160;&#160;&#160;<span class="s">'test'</span>, deps_type=int, output_type=bool,<br>&#160;&#160;&#160;&#160;instructions=<span class="s">'Use roulette_wheel.'</span>,<br>)<br><br><span class="k">@roulette.tool</span><br><span class="k">async def</span> roulette_wheel(<br>&#160;&#160;&#160;&#160;ctx: RunContext[int], square: int<br>) -&gt; str:<br>&#160;&#160;&#160;&#160;<span class="s">"""check if the square is a winner"""</span><br>&#160;&#160;&#160;&#160;<span class="k">return</span> <span class="s">'win'</span> <span class="k">if</span> square == ctx.deps <span class="k">else</span> <span class="s">'lose'</span><br><br>r = roulette.run_sync(<span class="s">'Bet on 18'</span>, deps=18)<br>print(r.output, r.usage)</p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>'test'</b> is TestModel: it calls every tool with schema-valid args, then returns valid output.</li>
+<li>The <b>docstring</b> becomes the tool description; the signature becomes its JSON schema.</li>
+<li><b>deps</b> are injected per run and read via ctx.deps.</li>
+<li>Swap 'test' for 'anthropic:claude-sonnet-5-5' when you’re ready.</li>
+</ul>
+<div class="code"><p>uv add pydantic-ai<br><span class="c"># or a slim install:</span><br>uv add <span class="s">"pydantic-ai-slim[openai]"</span></p></div>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · First agent · docs/agent.md, docs/install.md</p>
+<aside>This is the roulette example from the docs, pointed at TestModel. TestModel is the fastest way to learn: it inspects your tools, calls each one with arguments that satisfy the schema, then generates output that satisfies output_type. Nothing leaves your machine. Things to notice: output_type=bool means result.output is a real Python bool; deps_type=int is only for type checking, and the actual value comes from deps=18 on the run; result.usage tells you requests and tokens. Install: Python 3.11 or newer. pydantic-ai is the full install, and pydantic-ai-slim with extras such as [openai,anthropic] keeps production installs small. To try a real model, set ANTHROPIC_API_KEY or OPENAI_API_KEY and change the model string.</aside>
+</section>

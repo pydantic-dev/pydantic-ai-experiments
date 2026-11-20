@@ -1,0 +1,17 @@
+<section id="examples">
+<p class="eyebrow">08 · Learn by doing</p>
+<h2>A path through the 22 example projects</h2>
+<table>
+<tr><th style="width: 22%;">Stage</th><th style="width: 46%;">Examples, in order</th><th>You learn</th></tr>
+<tr><td>Core loop</td><td>pydantic_model → bank_support → weather_agent</td><td>Output types, instructions, tools, deps</td></tr>
+<tr><td>Streaming &amp; chat</td><td>stream_whales → chat_app → cancel_and_resume</td><td>Partial output, history, cancellation</td></tr>
+<tr><td>Grounding</td><td>sql_gen → data_analyst → rag</td><td>Validators, deps as a scratchpad, retrieval</td></tr>
+<tr><td>Multi-agent</td><td>flight_booking → medical_agent_delegation</td><td>Delegation, shared usage, human input</td></tr>
+<tr><td>Quality</td><td>evals/ scripts 03 → 02 → 04 → 01</td><td>Datasets, evaluators, model A/B</td></tr>
+<tr><td>Frontends</td><td>ag_ui → slack_lead_qualifier</td><td>AG-UI interrupts, webhooks, cron</td></tr>
+<tr><td>Realtime</td><td>text_to_audio → handoff → voice → webrtc</td><td>Voice sessions and deployment</td></tr>
+</table>
+<p class="lede" style="font-size: 28px; margin-top: 28px;">Run one: uv run -m pydantic_ai_examples.pydantic_model</p>
+<p class="foot">Pydantic AI Field Guide · Examples · examples/pydantic_ai_examples, docs/examples/*.md</p>
+<aside>Setup from the cloned repo: uv sync --extra examples, export OPENAI_API_KEY (most examples) or GEMINI_API_KEY, then uv run -m pydantic_ai_examples.module_name. --copy-to examples/ copies the top-level files for editing, but skips the sub-packages (ag_ui, evals, realtime_camera, realtime_webrtc, slack_lead_qualifier). No key at all: wrap any example in agent.override(model=TestModel()) to check its wiring, or run the FunctionModel snippet from docs/examples/cancellation.md. Free tiers: Gemini covers sql_gen (with a local Postgres in Docker), stream_markdown and realtime_camera; Groq covers roulette_wheel and stream_markdown. Not covered by any example, so use the feature docs: pydantic_graph, durable execution, MCP, FallbackModel and agent.iter, and Pydantic AI embeddings. Quirks found: weather-agent.md asks for API keys the code no longer uses, bank_support.py uses a module-global cursor (fix before reuse), and evals script 01 overwrites the committed dataset, so run it last. Gap-filling ideas: rebuild flight_booking as a graph, add ModelFallback to chat_app, expose bank_support tools over MCP.</aside>
+</section>

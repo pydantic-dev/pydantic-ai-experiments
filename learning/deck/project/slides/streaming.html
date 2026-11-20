@@ -1,0 +1,20 @@
+<section id="streaming">
+<p class="eyebrow">02 · Core agent</p>
+<h2>Stream text, or structured data as it validates</h2>
+<div class="split">
+<div class="code">
+<p><span class="k">class</span> Profile(TypedDict):<br>&#160;&#160;&#160;&#160;name: str<br>&#160;&#160;&#160;&#160;bio: NotRequired[str]&#160;&#160;<span class="c"># lets partials validate</span><br><br>agent = Agent(<span class="s">'openai:gpt-6.1-sol'</span>, output_type=Profile)<br><br><span class="k">async def</span> main():<br>&#160;&#160;&#160;&#160;<span class="k">async with</span> agent.run_stream(<span class="s">'Ben, likes dogs'</span>) <span class="k">as</span> r:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">async for</span> p <span class="k">in</span> r.stream_output(debounce_by=<span class="k">None</span>):<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;print(p)&#160;&#160;<span class="c"># growing snapshot</span><br><br><span class="c"># a stop button: one token per run</span><br>token = CancellationToken()<br>task = asyncio.create_task(<br>&#160;&#160;&#160;&#160;agent.run(q, cancellation_token=token))<br>token.cancel()&#160;&#160;<span class="c"># raises RunCancelled, history kept</span></p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>stream_text()</b> for chat; <b>delta=True</b> gives tokens instead of snapshots.</li>
+<li><b>stream_output()</b> yields partially validated objects: progressive forms and tables.</li>
+<li><b>RunCancelled.all_messages()</b> lets the next run resume from where you stopped.</li>
+</ul>
+<p class="label" style="margin-top: 8px;">Examples to run</p>
+<p class="lede" style="font-size: 28px;">stream_markdown (live Markdown), stream_whales (live table), cancel_and_resume (Esc to stop).</p>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Core agent · docs/output.md#streamed-results, docs/agent.md#cancelling-a-run</p>
+<aside>StreamedRunResult gives you stream_text (with delta and debounce_by options), stream_output for structured snapshots, stream_response, get_output, cancel, and .result for the settled AgentRunResult. The trick for structured streaming: fields must be optional (NotRequired in a TypedDict) so that an incomplete object still validates. That is exactly what stream_whales does to redraw a table as whale records arrive. Structured streaming also needs a provider that streams tool arguments. Note that stream_text(delta=True) does not add the final message to history. Cancellation: create a CancellationToken per run, pass it as cancellation_token, and call token.cancel() from anywhere, even another thread, which is the only way to stop a blocked run_sync. The run raises RunCancelled, whose all_messages() can be passed back as message_history; dangling tool calls are repaired automatically. Cancellation is cooperative: a sync def tool keeps running. Run-level timeout=seconds raises RunTimedOut, which is both a RunCancelled and a TimeoutError.</aside>
+</section>

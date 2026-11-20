@@ -1,0 +1,20 @@
+<section id="toolsets">
+<p class="eyebrow">03 · Tools &amp; capabilities</p>
+<h2>Everything is a toolset, and toolsets compose</h2>
+<div class="split" style="grid-template-columns: 1.6fr 1fr;">
+<div class="code">
+<p>weather = FunctionToolset([temp_c, temp_f])<br>clock = FunctionToolset([now])<br><br>toolset = (<br>&#160;&#160;&#160;&#160;CombinedToolset([weather.prefixed(<span class="s">'weather'</span>),<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;clock.prefixed(<span class="s">'clock'</span>)])<br>&#160;&#160;&#160;&#160;.filtered(<span class="k">lambda</span> ctx, td: <span class="s">'temp_f'</span> <span class="k">not in</span> td.name)<br>&#160;&#160;&#160;&#160;.renamed({<span class="s">'current_time'</span>: <span class="s">'clock_now'</span>})&#160;&#160;<span class="c"># new: old</span><br>&#160;&#160;&#160;&#160;.approval_required(<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">lambda</span> ctx, td, args: td.name.startswith(<span class="s">'weather'</span>))<br>)<br>agent = Agent(<span class="s">'test'</span>, toolsets=[toolset],<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;output_type=[str, DeferredToolRequests])</p>
+</div>
+<div class="stack">
+<ul class="points">
+<li>@agent.tool functions, MCP servers and frontend tools are <b>all toolsets</b>, merged per run.</li>
+<li><b>WrapperToolset</b>: subclass to log, cache or redact one toolset.</li>
+<li><b>ExternalToolset</b>: tools the browser or another service executes.</li>
+<li><b>@agent.toolset</b>: build tools per run, e.g. a per-user MCP server.</li>
+<li>Duplicate names raise errors: <b>prefix early</b>.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Tools · docs/toolsets.md</p>
+<aside>A toolset is any collection of tools behind get_tools and call_tool. Your decorated functions live in an internal FunctionToolset, an MCP server is an MCPToolset, and frontend tools are an ExternalToolset. Fluent wrappers compose them: prefixed, filtered, renamed (which maps new name to old name), prepared (rewrite definitions per step, but not add or rename), approval_required, defer_loading, include_return_schemas and with_metadata. Toolsets can be supplied on the Agent, on a run (added), with @agent.toolset for dynamic per-run construction, or with agent.override(toolsets=) in tests (replaces all). FunctionToolset accepts instructions that are appended after the agent’s. ExternalToolset calls end the run as DeferredToolRequests.calls so a browser or another service can execute them; the AG-UI and Vercel AI adapters use it for frontend tools. For a custom registry, subclass AbstractToolset. If you also need hooks or settings, write a capability instead. Note that in version 2, FunctionToolset.tool requires a RunContext first parameter.</aside>
+</section>

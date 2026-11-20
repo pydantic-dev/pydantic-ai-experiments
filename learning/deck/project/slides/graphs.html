@@ -1,0 +1,19 @@
+<section id="graphs">
+<p class="eyebrow">05 · Multi-agent</p>
+<h2>Graphs: typed state machines and parallel dataflow</h2>
+<div class="split" style="grid-template-columns: 1.7fr 1fr;">
+<div class="code">
+<p>summarizer = Agent(<span class="s">'openai:gpt-6.1-sol'</span>,<br>&#160;&#160;&#160;&#160;instructions=<span class="s">'Summarize in one sentence.'</span>)<br>g = GraphBuilder(input_type=list[str], output_type=list[str])<br><br><span class="k">@g.step</span><br><span class="k">async def</span> summarize(ctx: StepContext[None, None, str]) -&gt; str:<br>&#160;&#160;&#160;&#160;<span class="k">return</span> (<span class="k">await</span> summarizer.run(ctx.inputs)).output<br><br>collect = g.join(reduce_list_append, initial_factory=list[str])<br>g.add(g.edge_from(g.start_node).map().to(summarize),&#160;&#160;<span class="c"># fan out</span><br>&#160;&#160;&#160;&#160;&#160;&#160;g.edge_from(summarize).to(collect),&#160;&#160;<span class="c"># fan in</span><br>&#160;&#160;&#160;&#160;&#160;&#160;g.edge_from(collect).to(g.end_node))<br>graph = g.build()<br>out = <span class="k">await</span> graph.run(inputs=[<span class="s">'doc 1'</span>, <span class="s">'doc 2'</span>])<br>print(graph)&#160;&#160;<span class="c"># Mermaid diagram</span></p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>Steps</b>: functions with explicit edges, map, broadcast, joins and decisions.</li>
+<li><b>BaseNode</b> classes: edges come from return annotations.</li>
+<li>Both mix in one <b>GraphBuilder</b>.</li>
+<li>v2 removed graph <b>persistence</b>.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Graphs · docs/graph.md, docs/graph/builder/*.md</p>
+<aside>pydantic-graph is a type-hint-driven async graph library with no dependency on pydantic-ai, although it powers the agent loop itself. In version 2 every graph is assembled with GraphBuilder. Two styles mix freely. BaseNode style: a node is a dataclass subclass of BaseNode[State, Deps, RunEnd] whose async run(ctx) returns the next node or End(value), and the return annotation defines the outgoing edges; register them with g.add_reachable. Step style: @g.step functions receive ctx.inputs from the previous step; edges are explicit with g.edge_from(a).to(b); .map() fans out one task per item; g.join(reducer, initial_factory=...) fans in with reducers such as reduce_list_append, reduce_dict_update, reduce_sum or ReduceFirstValue (for races); g.decision().branch(g.match(T).to(step)) branches. graph.run(state=, deps=, inputs=) returns the raw output; graph.iter() lets you step through tasks; print(graph) or graph.render() gives a Mermaid diagram. Gotchas: joins reduce in completion order, not input order (carry an index if order matters), and parallel tasks share one mutable state. Persistence was removed in v2: use Harness StepPersistence for agent checkpoints, Conversation for chats, or a durable engine. Ideas: write-critique-rewrite loops, document map-reduce, model races.</aside>
+</section>

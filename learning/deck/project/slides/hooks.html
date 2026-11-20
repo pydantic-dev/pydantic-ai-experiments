@@ -1,0 +1,21 @@
+<section id="hooks">
+<p class="eyebrow">03 · Tools &amp; capabilities</p>
+<h2>Hooks and custom capabilities intercept every step</h2>
+<div class="split-even">
+<div class="stack" style="gap: 12px;">
+<p class="label">Quick: the Hooks capability</p>
+<div class="code">
+<p>hooks = Hooks()<br><span class="k">@hooks.on.before_model_request</span><br><span class="k">async def</span> log(ctx, request_context):<br>&#160;&#160;&#160;&#160;print(<span class="s">'step'</span>, ctx.run_step)<br>&#160;&#160;&#160;&#160;<span class="k">return</span> request_context<br><br><span class="k">@hooks.on.before_tool_execute</span>(<br>&#160;&#160;&#160;&#160;tools=[<span class="s">'send_email'</span>], timeout=5)<br><span class="k">async def</span> audit(ctx, *, call, tool_def, args):<br>&#160;&#160;&#160;&#160;print(<span class="s">'audit:'</span>, call.tool_name, args)<br>&#160;&#160;&#160;&#160;<span class="k">return</span> args</p>
+</div>
+</div>
+<div class="stack" style="gap: 12px;">
+<p class="label">Reusable: subclass a capability</p>
+<div class="code">
+<p><span class="k">@dataclass</span><br><span class="k">class</span> Audit(AbstractCapability[Any]):<br>&#160;&#160;&#160;&#160;count: int = 0<br>&#160;&#160;&#160;&#160;<span class="k">async def</span> for_run(self, ctx):<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">return</span> Audit()&#160;&#160;<span class="c"># per-run state</span><br><br>&#160;&#160;&#160;&#160;<span class="k">async def</span> wrap_tool_execute(<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;self, ctx, *, call, tool_def,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;args, handler):<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;print(<span class="s">'tool'</span>, call.tool_name)<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">return await</span> handler(args)</p>
+</div>
+</div>
+</div>
+<p class="lede" style="font-size: 28px; margin-top: 28px;">Order: wrap_* enters → before_* in list order → the operation → after_* in reverse → wraps exit.</p>
+<p class="foot">Pydantic AI Field Guide · Capabilities · docs/hooks.md, docs/capabilities/custom.md</p>
+<aside>Hooks cover the run, each graph node, model requests (before, prepare, after, wrap, error), tool argument validation and execution, output validation and processing, prepare_tools, deferred tool calls and events. Register them with @hooks.on.name or constructor keyword arguments; tool hooks can be filtered with tools=[...] and bounded with timeout=. Error hooks re-raise to propagate or return a value to recover, which is how you turn exceptions into ModelRetry or ToolFailed. ModelRetry raised from a model-request hook uses the output retry budget. Changing request_context.messages affects only that request; ctx.messages is the persistent history. For anything reusable, subclass AbstractCapability: implement for_run to return a fresh instance so state doesn’t leak between runs, and combine configuration methods (get_toolset, get_instructions, get_model_settings, get_wrapper_model) with hooks. SkipModelRequest and SkipToolExecution short-circuit an operation. Use ctx.enqueue to steer the model. Implement from_spec and pass custom_capability_types= to use it in YAML agent specs. Ideas: PII redaction, timing middleware, audit logs, cost tracking, guardrails.</aside>
+</section>

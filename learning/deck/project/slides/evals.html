@@ -1,0 +1,20 @@
+<section id="evals">
+<p class="eyebrow">06 · Quality</p>
+<h2>Evals are unit tests for stochastic code</h2>
+<div class="split">
+<div class="code">
+<p>dataset = Dataset(<br>&#160;&#160;&#160;&#160;name=<span class="s">'capital_quiz'</span>,&#160;&#160;<span class="c"># required in v2</span><br>&#160;&#160;&#160;&#160;cases=[Case(name=<span class="s">'france'</span>,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;inputs=<span class="s">'What is the capital of France?'</span>,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;expected_output=<span class="s">'Paris'</span>)],<br>&#160;&#160;&#160;&#160;evaluators=[IsInstance(type_name=<span class="s">'str'</span>),<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Contains(value=<span class="s">'Paris'</span>),<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;LLMJudge(rubric=<span class="s">'Correct and concise'</span>)],<br>)<br><br><span class="k">async def</span> answer(question: str) -&gt; str:<br>&#160;&#160;&#160;&#160;<span class="k">return</span> (<span class="k">await</span> agent.run(question)).output<br><br>report = dataset.evaluate_sync(answer, repeat=3)<br>report.print(include_reasons=<span class="k">True</span>)</p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>Built-in</b>: EqualsExpected, Contains, IsInstance, MaxDuration.</li>
+<li><b>LLMJudge</b> and <b>GEval</b> for rubric scoring.</li>
+<li><b>Custom</b>: a dataclass Evaluator, or a plain function.</li>
+<li><b>Report-level</b>: confusion matrix, precision/recall.</li>
+<li>Datasets save to <b>YAML</b> with a schema; compare with a baseline.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Evals · docs/evals.md, docs/evals/*</p>
+<aside>pydantic_evals is a separate package (no dependency on pydantic-ai) for evaluating any stochastic function. A Dataset holds Cases (inputs, optional expected_output, metadata, per-case evaluators) plus dataset-wide evaluators and report evaluators. evaluate or evaluate_sync runs your task over the cases, with max_concurrency, repeat to measure variance, task_timeout and retry options, and returns an EvaluationReport; report.print(baseline=old_report) shows an A/B diff. Evaluators return a bool (assertion), a number (score), a string (label), an EvaluationReason, or a dict of these. Custom evaluators are @dataclass subclasses of Evaluator with an evaluate(ctx) method, and in version 2 a plain function works too. LLMJudge produces a pass assertion with a reason, and can add a 0 to 1 score; its default model is still hard-coded to openai:gpt-5.2, so pass model= or call set_default_judge_model. GEval returns raw integer scores. dataset.to_file('cases.yaml') writes a JSON schema for editor autocomplete, and generate_dataset can have an LLM draft typed cases. Gotcha found in research: the docs say the judge only runs if basic checks pass, but all case evaluators actually run concurrently. Study examples/pydantic_ai_examples/evals, scripts 03, 02, 04, then 01.</aside>
+</section>

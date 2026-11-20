@@ -1,0 +1,11 @@
+<section id="failures" class="dark">
+<p class="eyebrow">03 · Tools &amp; capabilities</p>
+<p class="big">A tool can fail in three ways, and each one <span class="hl">means something different</span> to the run.</p>
+<div class="cards" style="margin-top: 24px;">
+<div class="card" style="--i:0"><p class="api">raise ModelRetry('…')</p><h3>“Fix your arguments”</h3><p>The message goes back to the model and it tries again. Uses the tool’s retry budget; when it runs out, UnexpectedModelBehavior.</p></div>
+<div class="card" style="--i:1"><p class="api">raise ToolFailed('…')</p><h3>“Done, but it failed”</h3><p>A definitive result such as “file not found”. Uses no retry budget, so cap repeats with UsageLimits.</p></div>
+<div class="card" style="--i:2"><p class="api">any other exception</p><h3>“Stop everything”</h3><p>Aborts the run, unless a hook or ReportToolErrors turns it into one of the other two.</p></div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Tools · docs/tools-advanced.md#tool-retries</p>
+<aside>This is one of the most useful distinctions to internalise. ModelRetry is for problems the model can fix, such as a malformed path, a missing full name or an invalid filter; it appears in history as a tool return with outcome='retried'. ToolFailed is new in version 2 and is for outcomes that are final, such as a 404 or a permission denied; it appears with outcome='failed' and costs no retry budget. Anything else propagates and ends the run, which is right for bugs but harsh for flaky dependencies. You can convert exceptions with an on_tool_execute_error hook, or use the Harness ReportToolErrors capability. Retry budget precedence: per-tool, then toolset, then override, then run(retries=), then Agent(retries=), then 1. args_validator(ctx, params) runs after schema validation and before execution or approval, which is the right place for business rules you want checked before a human is asked.</aside>
+</section>

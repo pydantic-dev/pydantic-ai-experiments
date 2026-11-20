@@ -1,0 +1,21 @@
+<section id="validators" class="alt">
+<p class="eyebrow">02 · Core agent</p>
+<h2>Validate against reality, then let the model retry</h2>
+<div class="split">
+<div class="code">
+<p><span class="k">@agent.output_validator</span><br><span class="k">async def</span> check_sql(ctx: RunContext[Conn], out: Sql) -&gt; Sql:<br>&#160;&#160;&#160;&#160;<span class="k">if</span> ctx.partial_output:&#160;&#160;<span class="c"># streaming snapshot</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">return</span> out<br>&#160;&#160;&#160;&#160;<span class="k">try</span>:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">await</span> ctx.deps.execute(f<span class="s">'EXPLAIN {out.query}'</span>)<br>&#160;&#160;&#160;&#160;<span class="k">except</span> QueryError <span class="k">as</span> e:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">raise</span> ModelRetry(f<span class="s">'Invalid query: {e}'</span>)<br>&#160;&#160;&#160;&#160;<span class="k">return</span> out<br><br><span class="c"># output function: the model must call it to finish</span><br><span class="k">def</span> run_sql(ctx: RunContext, query: str) -&gt; list[str]:<br>&#160;&#160;&#160;&#160;<span class="k">if not</span> query.upper().startswith(<span class="s">'SELECT'</span>):<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">raise</span> ModelRetry(<span class="s">'Only SELECT is allowed.'</span>)<br>&#160;&#160;&#160;&#160;<span class="k">return</span> db_rows(query)<br>sql = Agent(<span class="s">'openai:gpt-6.1-sol'</span>, output_type=run_sql)</p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>ModelRetry</b> sends your message back to the model, which tries again.</li>
+<li>Output retries use the <b>output budget</b> (default 1): set retries={'output': 3}.</li>
+<li><b>validation_context</b> feeds Pydantic validators (info.context) and never reaches the model.</li>
+<li>When streaming, validators run on every partial: guard side effects with <b>ctx.partial_output</b>.</li>
+</ul>
+<p class="label" style="margin-top: 8px;">See it live</p>
+<p class="lede" style="font-size: 28px;">examples/sql_gen.py checks generated SQL with EXPLAIN on Postgres.</p>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Core agent · docs/output.md#output-validator-functions</p>
+<aside>Pydantic already validates the shape of the output; output validators let you validate against the real world, for example by running EXPLAIN on generated SQL, checking that a URL resolves, or confirming an ID exists. Return the output (optionally modified) or raise ModelRetry with a message the model can act on. The retry shows up in history as a retry feedback part, and costs one unit of the output retry budget, which defaults to 1. Output functions go one step further: the function itself is the output type, so the model has to call it with valid arguments to finish the run, and its return value becomes result.output. TextOutput(fn) is the plain-text version. Real-world ideas: text-to-SQL over analytics with a read-only role, generate-then-validate for any DSL (regex, cron expressions, config files), or a router agent whose output functions hand off to specialist agents.</aside>
+</section>

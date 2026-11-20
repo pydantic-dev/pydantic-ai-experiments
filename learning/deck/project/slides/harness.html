@@ -1,0 +1,17 @@
+<section id="harness" class="dark">
+<p class="eyebrow">07 · Harness</p>
+<h2>The Harness: 100+ ready-made capabilities</h2>
+<div class="cards4">
+<div class="card" style="--i:0"><h3>Sandboxes</h3><p class="api">LocalWorkspace DockerContainer ModalSandbox E2BSandbox</p></div>
+<div class="card" style="--i:1"><h3>Files &amp; shell</h3><p class="api">FileSystem Shell RepoContext RequireVerification</p></div>
+<div class="card" style="--i:2"><h3>Context</h3><p class="api">TieredCompaction ToolOutputLimits SystemReminders</p></div>
+<div class="card" style="--i:3"><h3>Memory</h3><p class="api">Memory StepPersistence Skills ConversationSearch</p></div>
+<div class="card" style="--i:4"><h3>Safety</h3><p class="api">Guardrails Permissions ToolCallJudge PromptInjectionDefender</p></div>
+<div class="card" style="--i:5"><h3>Budgets</h3><p class="api">SpendLimits ToolBudgets WrapUpAtLimits DetectLoops</p></div>
+<div class="card" style="--i:6"><h3>Delegation</h3><p class="api">SubAgents Planning DynamicWorkflow Advisor</p></div>
+<div class="card" style="--i:7"><h3>Integrations</h3><p class="api">GitHub Slack Linear Notion GoogleWorkspace</p></div>
+</div>
+<p class="lede" style="font-size: 28px; margin-top: 24px;">pip install pydantic-ai-harness. Even the packaged Coder and Researcher agents are just capability bundles you can take apart.</p>
+<p class="foot">Pydantic AI Field Guide · Harness · docs/harness/index.md</p>
+<aside>The Harness is a separate package (pip install pydantic-ai-harness, import pydantic_ai_harness) in the same monorepo, versioned 0.X in lockstep with pydantic-ai 2.X and pinning the exact matching pydantic-ai-slim. “Harness” means everything around the model: the loop, tools and context management. Core stays lean and keeps what needs framework or provider support (Thinking, WebSearch, MCP, native compaction, ToolSearch, Caching, LocalWorkspace); the Harness adds what long-running, file-touching, unattended agents need. Most capabilities have their own extra, e.g. [coder], [modal], [codemode], [skills], [github]. File and shell capabilities need a workspace: LocalWorkspace('.') from core (not a sandbox) or a sandbox capability. List order matters, for example compaction before Memory, and HandleDeferredToolCalls after Permissions. Other notable entries: CodeMode (tools become one run_code tool executed in the Monty sandbox), CapabilityCreation (the agent writes its own capabilities), ExaSearch, PlaywrightBrowser, BrowserUse, ACP for editors, and GitHub Agentic Workflows. 0.x means APIs still change between minors; read the Upgrading sections.</aside>
+</section>

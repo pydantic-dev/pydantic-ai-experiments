@@ -1,0 +1,18 @@
+<section id="logfire">
+<p class="eyebrow">06 · Quality</p>
+<h2>Everything is OpenTelemetry</h2>
+<div class="split">
+<div class="code">
+<p><span class="k">import</span> logfire<br><br>logfire.configure(send_to_logfire=<span class="s">'if-token-present'</span>)<br>logfire.instrument_pydantic_ai()&#160;&#160;<span class="c"># every agent</span><br>logfire.instrument_httpx(capture_all=<span class="k">True</span>)&#160;&#160;<span class="c"># raw HTTP</span><br><br><span class="c"># per-agent privacy override</span><br>private = Agent(<span class="s">'openai:gpt-6.1-sol'</span>, name=<span class="s">'private'</span>,<br>&#160;&#160;&#160;&#160;capabilities=[Instrumentation(settings=<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;InstrumentationSettings(include_content=<span class="k">False</span>))])<br><br><span class="c"># no Logfire account? any OTel backend works:</span><br><span class="c"># configure a TracerProvider, then</span><br>Agent.instrument_all()</p>
+</div>
+<div class="stack">
+<p class="label">Debug loop</p>
+<div class="rung" style="--i:0; border-top: none;"><p class="n">1</p><p>Reproduce the problem in one run.</p></div>
+<div class="rung" style="--i:1"><p class="n">2</p><p>Read the trace: gen_ai.input.messages and tool definitions.</p></div>
+<div class="rung" style="--i:2"><p class="n">3</p><p>Pin it in a FunctionModel test, then add an eval case.</p></div>
+<p class="lede" style="font-size: 24px; margin-top: 12px;">Metrics: token usage, cost, time to first chunk, prompt-cache hit ratio.</p>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Observability · docs/logfire.md, docs/troubleshooting.md</p>
+<aside>Pydantic AI emits OpenTelemetry GenAI semantic-convention traces: one trace per run, with spans for each model request and tool call, plus metrics such as gen_ai.client.token.usage, operation.cost, time to first chunk, and prompt-cache health (pydantic_ai.cache.hit_ratio and collapse reasons). Logfire is the first-class viewer, and send_to_logfire='if-token-present' means nothing leaves your machine without a token; any OTel backend works with Agent.instrument_all() and your own TracerProvider and exporter. instrument_httpx(capture_all=True) shows the raw provider requests, which is the fastest way to answer “what exactly did the model receive?”. InstrumentationSettings controls privacy: include_content=False, include_binary_content=False, and the semantic-convention version. Setup helper: uvx logfire-cli wizard --task pydantic-ai; note that the .logfire directory it writes is gitignored but not excluded from Docker build contexts. The troubleshooting doc recommends the three-step loop on the right. Common errors it covers: event-loop problems in Jupyter (use await agent.run), the default request_limit of 50, exceeded max retries (improve docstrings or raise budgets) and unprocessed tool calls (resume with no prompt or repair_messages).</aside>
+</section>

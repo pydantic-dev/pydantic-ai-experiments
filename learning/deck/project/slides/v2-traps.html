@@ -1,0 +1,19 @@
+<section id="v2-traps" class="alt">
+<p class="eyebrow">08 · Learn by doing</p>
+<h2>Old tutorial? Translate it to v2</h2>
+<table>
+<tr><th style="width: 46%;">You’ll see in older code</th><th>Write this in v2</th></tr>
+<tr><td>result_type=, result.usage()</td><td>output_type=, result.usage</td></tr>
+<tr><td>OpenAIModel, openai: for Chat Completions</td><td>OpenAIChatModel, openai-chat: (openai: is Responses)</td></tr>
+<tr><td>MCPServerStdio / SSE / StreamableHTTP</td><td>MCPToolset, or the MCP capability</td></tr>
+<tr><td>builtin_tools=[...]</td><td>capabilities=[NativeTool(...)]</td></tr>
+<tr><td>history_processors=, prepare_tools=, instrument=</td><td>ProcessHistory, PrepareTools, Instrumentation</td></tr>
+<tr><td>FallbackModel inside an agent</td><td>ModelFallback capability</td></tr>
+<tr><td>Agent.to_ag_ui()</td><td>AGUIAdapter.dispatch_request()</td></tr>
+<tr><td>TemporalAgent, DBOSAgent, PrefectAgent</td><td>TemporalDurability() and friends</td></tr>
+<tr><td>Graph(nodes=[...]), graph persistence</td><td>GraphBuilder; persistence removed</td></tr>
+<tr><td>DeferredToolCalls, DeferredToolset</td><td>DeferredToolRequests, ExternalToolset</td></tr>
+</table>
+<p class="foot">Pydantic AI Field Guide · Migration · docs/migration.md, docs/changelog.md</p>
+<aside>Most blog posts and many answers online were written for version 1, and a lot of them no longer run. This table collects the renames the research found most often. The pattern behind most of them: agent keyword arguments that configured behaviour became capabilities in a list, so they compose and can be declared in YAML agent specs. Other changes worth knowing: Dataset(name=...) is now required in Pydantic Evals; FunctionToolset.tool requires a RunContext first parameter; the ACI integration was removed (wrap the SDK with Tool.from_schema); deps_type defaults to object instead of None; retry budgets can be split with retries={'tools': N, 'output': M}. docs/migration.md lists every change. A coding-agent tip: uvx library-skills --all --claude installs Pydantic AI skills into Claude Code so it writes v2-style code.</aside>
+</section>

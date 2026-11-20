@@ -1,0 +1,3 @@
+pydantic-ai-slim[anthropic,openai,mcp]==2.71.0
+fastmcp==4.2.3
+markdown==3.11.3   # only for publish/build.py

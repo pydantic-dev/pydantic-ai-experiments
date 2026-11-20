@@ -1,0 +1,15 @@
+<section id="durable" class="alt">
+<p class="eyebrow">05 · Multi-agent</p>
+<h2>Durable execution survives crashes</h2>
+<table>
+<tr><th style="width: 16%;">Engine</th><th style="width: 38%;">Attach to the agent</th><th>Pick it when · watch out</th></tr>
+<tr><td>Temporal</td><td>TemporalDurability() + PydanticAIWorkflow</td><td>Worker fleets, signals, multi-day waits · deterministic workflow code</td></tr>
+<tr><td>DBOS</td><td>DBOSDurability() + your @DBOS.workflow</td><td>In-process, Postgres or SQLite, no server · wrap I/O tools in @DBOS.step</td></tr>
+<tr><td>Prefect</td><td>PrefectDurability() + your @flow</td><td>You already run Prefect · cache-based, not exactly-once</td></tr>
+<tr><td>Restate</td><td>RestateAgent(agent)</td><td>HTTP services and serverless · make steps idempotent</td></tr>
+<tr><td>Airflow</td><td>AgentOperator(durable=True)</td><td>The agent is a DAG task · no approvals or streaming</td></tr>
+</table>
+<p class="lede" style="font-size: 28px; margin-top: 28px;">Durable only when agent.run() runs inside the engine’s workflow.</p>
+<p class="foot">Pydantic AI Field Guide · Durable execution · docs/durable_execution/*.md</p>
+<aside>A durable engine journals each model request and wrapped tool call as a unit, replays completed units after a crash and retries the one that was in flight. In version 2 you attach exactly one durability capability to a normal Agent; the old TemporalAgent, DBOSAgent and PrefectAgent wrappers are deprecated. The key trap: the run is durable only when agent.run() executes inside the engine’s workflow or flow. When migrating from DBOSAgent or PrefectAgent you must add @DBOS.workflow or @flow yourself, or the run is silently not durable. Temporal is the most powerful and the strictest: workflow code must be deterministic, deps must be serializable, payloads are capped at 2 MB, and agent name and toolset id must be stable. Set activity_config, because Temporal’s default is unlimited retries. DBOS is the simplest to try locally, with sqlite:///x.sqlite as the system database. Tools should be idempotent because in-flight steps re-run on replay, and changing durable units breaks in-flight replays, so drain or version before deploys. The Harness adds more engines: AWSLambdaDurability, PGTaskDurability, AbsurdDurability and AzureDurableTaskDurability. Durability is not storage: for ordinary chats, a Conversation in a jsonb column is enough. Exercise: run DBOS on SQLite with a slow step tool, kill the process mid-run, restart and confirm the model call isn’t re-billed.</aside>
+</section>

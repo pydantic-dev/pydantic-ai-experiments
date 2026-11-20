@@ -1,0 +1,22 @@
+<section id="experiments">
+<p class="eyebrow">08 · Learn by doing</p>
+<h2>Ten experiments for pydantic-ai-experiments</h2>
+<div class="split-even" style="gap: 64px;">
+<div class="stack" style="gap: 0;">
+<div class="rung" style="--i:0; border-top: none;"><p class="n">1</p><p><b>Offline hello-agent</b>: Agent('test'), one tool, a BaseModel output; print all_messages().</p></div>
+<div class="rung" style="--i:1"><p class="n">2</p><p><b>Run-mode tour</b>: one prompt through all five run methods; watch run_stream skip a tool.</p></div>
+<div class="rung" style="--i:2"><p class="n">3</p><p><b>Retry lab</b>: ModelRetry vs ToolFailed; compare outcomes and budgets.</p></div>
+<div class="rung" style="--i:3"><p class="n">4</p><p><b>Approval CLI</b>: approve with input(), save the Conversation, resume in another process.</p></div>
+<div class="rung" style="--i:4"><p class="n">5</p><p><b>Persistent chat</b>: ConversationStore, a fork, one cost_limit across turns.</p></div>
+</div>
+<div class="stack" style="gap: 0;">
+<div class="rung" style="--i:5; border-top: none;"><p class="n">6</p><p><b>Local MCP</b>: an in-process FastMCP server via MCPToolset, no network.</p></div>
+<div class="rung" style="--i:6"><p class="n">7</p><p><b>Middleware</b>: a capability that times requests, logs tools, redacts emails.</p></div>
+<div class="rung" style="--i:7"><p class="n">8</p><p><b>First eval suite</b>: 10 YAML cases, a custom evaluator, a judge, repeat=3.</p></div>
+<div class="rung" style="--i:8"><p class="n">9</p><p><b>Parallel graph</b>: map an agent over documents; fix the join order.</p></div>
+<div class="rung" style="--i:9"><p class="n">10</p><p><b>Safe coder</b>: Docker sandbox, FileSystem, Shell, Permissions, RequireVerification.</p></div>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Experiments · cloned at /home/ubuntu/pydantic-dev/pydantic-ai-experiments</p>
+<aside>These ten are ordered by difficulty and drawn from the experiment lists in all six research notes. 1 to 3 need no API key at all: use 'test', TestModel and FunctionModel. For 2, script a FunctionModel response that contains text plus a tool call to see run_stream end before the tool runs. For 3, raise ModelRetry twice and ToolFailed once and inspect ToolReturnPart.outcome. For 4, end the run with DeferredToolRequests, dump result.conversation with ConversationTypeAdapter, and resume in a fresh process with deferred_tool_results; then try HandleDeferredToolCalls instead. For 5, use InMemoryConversationStore first. For 6, compare tool_error_behavior='retry' and 'failed'. For 7, stack your capability with Hooks() and print the order hooks fire in. For 8, store cases with dataset.to_file to get schema autocomplete, and compare runs with report.print(baseline=old). For 9, carry (index, item) and use reduce_dict_update to restore input order. For 10, seed a repo with a failing test and compare against plain Coder() in Logfire. Stretch goals from the research: DBOS on SQLite with a mid-run kill, a local decision model with system-one: on Ollama, and a realtime text-to-audio session.</aside>
+</section>

@@ -1,0 +1,21 @@
+<section id="delegation" class="alt">
+<p class="eyebrow">05 · Multi-agent</p>
+<h2>Delegation: an agent inside a tool</h2>
+<div class="split" style="grid-template-columns: 1.6fr 1fr;">
+<div class="code">
+<p>selector = Agent(<span class="s">'openai:gpt-6.1-sol'</span>, name=<span class="s">'selector'</span>,<br>&#160;&#160;&#160;&#160;instructions=<span class="s">'Use jokes, then return the best one.'</span>)<br>generator = Agent(<span class="s">'google:gemini-3.8-flash'</span>,<br>&#160;&#160;&#160;&#160;name=<span class="s">'generator'</span>, output_type=list[str])<br><br><span class="k">@selector.tool</span><br><span class="k">async def</span> jokes(ctx: RunContext, count: int) -&gt; list[str]:<br>&#160;&#160;&#160;&#160;r = <span class="k">await</span> generator.run(f<span class="s">'Write {count} jokes.'</span>,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;usage=ctx.usage)&#160;&#160;<span class="c"># shared budget</span><br>&#160;&#160;&#160;&#160;<span class="k">return</span> r.output<br><br>result = selector.run_sync(<span class="s">'Tell me a joke.'</span>,<br>&#160;&#160;&#160;&#160;usage_limits=UsageLimits(request_limit=5))<br>print(result.usage)&#160;&#160;<span class="c"># covers both agents</span></p>
+</div>
+<div class="stack">
+<ul class="points">
+<li>Delegating tools must be <b>async</b>: run_sync inside a tool raises.</li>
+<li>Always set <b>name=</b>: it labels spans and durable activities.</li>
+<li><b>Hand-off</b> instead: run agents in sequence and branch on typed output.</li>
+<li><b>Output-function hand-off</b>: a router whose output_type calls the next agent.</li>
+</ul>
+<p class="label" style="margin-top: 8px;">Study</p>
+<p class="lede" style="font-size: 28px;">flight_booking, medical_agent_delegation</p>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Multi-agent · docs/multi-agent-applications.md</p>
+<aside>Agent delegation: the parent’s tool awaits child.run(...) and returns its output. Pass usage=ctx.usage so the child’s tokens and requests roll into the parent’s totals and its UsageLimits; a sub-agent that shares usage should also get usage_limits=ctx.usage_limits. Pass deps=ctx.deps if the child needs them; the child’s deps must match or be a subset of the parent’s. Agents are stateless globals, so don’t put them in deps. Under Temporal, tools get a copy of RunContext, so delegate usage is lost unless you return it. A shared CancellationToken cancels the whole tree. Programmatic hand-off: share a RunUsage() across sequential runs and pass message_history= when context should carry over; flight_booking does exactly this, including a human confirmation step. Output-function hand-off: put an async function such as hand_off_to_sql_agent in the router’s output_type; inside it, run the next agent with message_history=ctx.messages[:-1]. The router never regains control. Harness shortcut: SubAgents gives the model one delegate_task tool with per-delegate budgets. Exercise: medical_agent_delegation doesn’t pass usage=ctx.usage; add it.</aside>
+</section>

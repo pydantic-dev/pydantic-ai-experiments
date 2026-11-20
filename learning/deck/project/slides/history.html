@@ -1,0 +1,19 @@
+<section id="history" class="alt">
+<p class="eyebrow">02 · Core agent</p>
+<h2>Conversations carry history, usage and approvals</h2>
+<div class="split">
+<div class="code">
+<p>r1 = agent.run_sync(<span class="s">'Tell me a joke.'</span>)<br>r2 = agent.run_sync(<span class="s">'Why?'</span>, conversation=r1.conversation)<br>r3 = agent.run_sync(<span class="s">'Explain?'</span>,&#160;&#160;<span class="c"># switch model mid-chat</span><br>&#160;&#160;&#160;&#160;message_history=r1.new_messages(),<br>&#160;&#160;&#160;&#160;model=<span class="s">'anthropic:claude-sonnet-5-5'</span>)<br><br><span class="c"># persist and restore with full fidelity</span><br>blob = ConversationTypeAdapter.dump_json(r1.conversation)<br>conv = ConversationTypeAdapter.validate_json(blob)<br><br><span class="k">async def</span> chat(store, cid: str, prompt: str) -&gt; str:<br>&#160;&#160;&#160;&#160;conv = (<span class="k">await</span> store.load(cid)<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">or</span> Conversation(conversation_id=cid))<br>&#160;&#160;&#160;&#160;result = <span class="k">await</span> agent.run(prompt, conversation=conv)<br>&#160;&#160;&#160;&#160;<span class="k">await</span> store.save(result)&#160;&#160;<span class="c"># appends new messages</span><br>&#160;&#160;&#160;&#160;<span class="k">return</span> result.output</p>
+</div>
+<div class="stack">
+<ul class="points">
+<li>History is <b>model-agnostic</b>: start on one provider, continue on another.</li>
+<li><b>ProcessHistory(fn)</b> trims, redacts or compacts before every request.</li>
+<li><b>ctx.enqueue()</b> injects messages mid-run, e.g. a user typing while tools work.</li>
+<li>History from a client can forge tool calls: <b>sanitize_messages()</b> it.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Core agent · docs/message-history.md, docs/persistence.md</p>
+<aside>Each run produces ModelRequest and ModelResponse messages. result.all_messages() and new_messages() return them, with _json variants for storage. In version 2, prefer conversation=result.conversation over message_history: a Conversation bundles the messages with usage, the conversation ID and any pending deferred tool calls, so limits and approvals survive across turns. conversation_id='new' forks. ModelMessagesTypeAdapter and ConversationTypeAdapter round-trip everything. ConversationStore adds append-only saves, conflict detection, per-owner scope, branch and fork; InMemoryConversationStore is for tests, and a jsonb column is plenty in production. History processors are now the ProcessHistory capability (the old history_processors= kwarg is gone); ctx.context_window_used tells you how full the context is, which is handy for compacting at about 80 percent. Gotchas: when history is passed, no new system prompt is added; never mutate messages in place; a conversation ID is a key, not a credential, so check access. The chat_app example stores history in SQLite between requests.</aside>
+</section>

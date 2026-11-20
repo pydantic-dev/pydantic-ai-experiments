@@ -1,0 +1,18 @@
+<section id="capabilities" class="alt">
+<p class="eyebrow">03 · Tools &amp; capabilities</p>
+<h2>Capabilities: v2’s unit of reusable behaviour</h2>
+<div class="split" style="grid-template-columns: 1.3fr 1fr;">
+<div class="code">
+<p>refunds = Capability(<br>&#160;&#160;&#160;&#160;id=<span class="s">'refunds'</span>,<br>&#160;&#160;&#160;&#160;description=<span class="s">'Refund eligibility and status.'</span>,<br>&#160;&#160;&#160;&#160;instructions=<span class="s">'Confirm the order ID first.'</span>,<br>&#160;&#160;&#160;&#160;defer_loading=<span class="k">True</span>,&#160;&#160;<span class="c"># loaded on demand</span><br>)<br><br><span class="k">@refunds.tool_plain</span><br><span class="k">def</span> refund_status(order_id: str) -&gt; str:<br>&#160;&#160;&#160;&#160;<span class="s">"""Look up the refund status."""</span><br>&#160;&#160;&#160;&#160;<span class="k">return</span> f<span class="s">'Order {order_id}: refunded.'</span><br><br>agent = Agent(<span class="s">'anthropic:claude-sonnet-5-5'</span>,<br>&#160;&#160;&#160;&#160;capabilities=[refunds, Thinking(<span class="s">'high'</span>), Caching(),<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;WebSearch(local=<span class="s">'duckduckgo'</span>)])</p>
+</div>
+<div class="stack">
+<p class="lede" style="font-size: 28px; margin: 0;">One bundle of tools, instructions, settings and hooks. They nest like middleware: first listed is outermost.</p>
+<p class="label" style="margin-top: 8px;">Built into core</p>
+<div class="chips">
+<p class="chip">Thinking</p><p class="chip">Caching</p><p class="chip">WebSearch</p><p class="chip">WebFetch</p><p class="chip">MCP</p><p class="chip">ModelFallback</p><p class="chip">RetryOnModelErrors</p><p class="chip">ProcessHistory</p><p class="chip">ToolSearch</p><p class="chip">Hooks</p><p class="chip">Citations</p><p class="chip">NativeTool</p>
+</div>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Capabilities · docs/capabilities/overview.md, docs/capabilities/on-demand.md</p>
+<aside>A capability (AbstractCapability) can contribute a toolset, native tools, instructions, model settings, a model choice, wrapper toolsets and models, and lifecycle hooks. Capability(...) is the shorthand when you don’t need a subclass. Many old Agent keyword arguments became capabilities in version 2: builtin_tools became NativeTool, prepare_tools became PrepareTools, history_processors became ProcessHistory, instrument became Instrumentation. Provider-adaptive capabilities (WebSearch, WebFetch, ImageGeneration, XSearch, MCP) use the provider’s native tool where the model supports it, and a local fallback otherwise, so you can write the agent once and run it on any provider. With defer_loading=True and a stable id, a capability collapses to one catalog line until the model calls load_capability(id=...), at which point its instructions, tools, settings and hooks go live. That is how Markdown skills work. Other core capabilities: PrepareTools, PrefixTools, SetToolMetadata, ProcessEventStream, ReinjectSystemPrompt, RaiseContentFilterError, SelectModel, ResolveModelId, FileUnderstanding, UseThreadExecutor, BatchModelRequests, HandleDeferredToolCalls, LocalWorkspace, and provider compaction. Built-in capabilities have fixed ids; one passed to run() replaces the agent’s.</aside>
+</section>

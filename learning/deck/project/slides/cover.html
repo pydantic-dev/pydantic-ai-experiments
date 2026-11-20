@@ -1,0 +1,24 @@
+<section id="cover" class="dark">
+<div class="split" style="grid-template-columns: 1.15fr 1fr; gap: 72px; margin-top: 40px;">
+<div>
+<p class="eyebrow">A learning deck · Pydantic AI v2.71</p>
+<h1>Pydantic AI Field Guide</h1>
+<p class="lede">Every feature of the agent framework: what it is, what it looks like in code, and what you’d build with it.</p>
+<div class="chips" style="margin-top: 16px;">
+<p class="chip">agents</p>
+<p class="chip">tools</p>
+<p class="chip">MCP</p>
+<p class="chip">capabilities</p>
+<p class="chip">graphs</p>
+<p class="chip">evals</p>
+<p class="chip">realtime</p>
+<p class="chip">harness</p>
+</div>
+</div>
+<div class="code" style="margin-top: 24px;">
+<p><span class="k">from</span> pydantic <span class="k">import</span> BaseModel<br><span class="k">from</span> pydantic_ai <span class="k">import</span> Agent<br><br><span class="k">class</span> City(BaseModel):<br>&#160;&#160;&#160;&#160;name: str<br>&#160;&#160;&#160;&#160;country: str<br><br>agent = Agent(<span class="s">'test'</span>, output_type=City)<br>r = agent.run_sync(<span class="s">'The windy city'</span>)<br>print(r.output)<br><span class="c"># City(name='a', country='a')</span><br><span class="c"># 'test' = TestModel: no API key</span></p>
+</div>
+</div>
+<p class="foot">Built from the docs/ and examples/ of pydantic-dev/pydantic-ai-experiments · November 2026</p>
+<aside>Welcome. This deck was built from Pydantic AI’s own docs and example projects at version 2.71 (the main branch, cloned into the pydantic-dev org as pydantic-ai-experiments). Six research passes covered the core agent, tools and capabilities, models and interfaces, multi-agent and evals, the Harness capability library, and the examples. Every code sample uses real API names checked against the source. Where possible the samples use the model string 'test', which is the offline TestModel, so you can run them with no API key. The speaker notes on each slide carry extra detail and gotchas.</aside>
+</section>

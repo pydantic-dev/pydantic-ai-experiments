@@ -1,0 +1,20 @@
+<section id="settings" class="alt">
+<p class="eyebrow">04 · Models &amp; interfaces</p>
+<h2>Settings stack up; fallbacks and local models plug in</h2>
+<div class="split" style="grid-template-columns: 1.7fr 1fr;">
+<div class="code">
+<p>model = GoogleModel(<span class="s">'gemini-3.8-flash'</span>,<br>&#160;&#160;&#160;&#160;settings=ModelSettings(temperature=0.8, max_tokens=500))<br>agent = Agent(model, model_settings={<span class="s">'temperature'</span>: 0.5},<br>&#160;&#160;&#160;&#160;capabilities=[ModelFallback(<span class="s">'anthropic:claude-sonnet-5-5'</span>)])<br>agent.run_sync(<span class="s">'Hi'</span>, model_settings={<span class="s">'temperature'</span>: 0.0})<br><span class="c"># effective: temperature 0.0, max_tokens 500</span><br><br><span class="c"># local and OpenAI-compatible servers</span><br>local = OllamaModel(<span class="s">'qwen3'</span>, provider=OllamaProvider(<br>&#160;&#160;&#160;&#160;base_url=<span class="s">'http://localhost:11434/v1'</span>))<br>custom = OpenAIChatModel(<span class="s">'my-model'</span>,<br>&#160;&#160;&#160;&#160;provider=OpenAICompatibleProvider(<span class="s">'my-svc'</span>,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;base_url=<span class="s">'http://localhost:8000/v1'</span>, api_key=<span class="s">'x'</span>))</p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>Precedence</b>: model &lt; agent &lt; capability &lt; run.</li>
+<li><b>thinking</b>: one portable reasoning knob.</li>
+<li><b>ModelFallback</b> also catches content filters and truncation.</li>
+<li><b>Profiles</b> describe a model; capabilities change the agent.</li>
+<li>Unsupported knobs are <b>ignored silently</b>.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Models · docs/agent.md#model-run-settings, docs/models/compatible-apis.md</p>
+<aside>ModelSettings is a TypedDict: max_tokens, temperature, top_p, top_k, timeout, request_timeout, first_event_timeout, max_retries, parallel_tool_calls, tool_choice, seed, penalties, stop_sequences, extra_headers, thinking, citations, cache, service_tier and extra_body. Settings merge from the model, then the agent, then capabilities such as Thinking(), then the run; setting a key to None clears an inherited value, and agent- or run-level settings can be a lambda of ctx evaluated before each request. Provider-specific classes (AnthropicModelSettings, OpenAIModelSettings, GoogleModelSettings) add fields that override the portable ones. Fallback: ModelFallback is the in-agent way; it falls back on ModelAPIError plus ContentFilterError and OutputTokenLimitExceeded by default, and you can pass exception or response handlers via fallback_on. Set the SDK’s max_retries to 0 so failover is fast. Local models: Ollama’s base URL includes /v1; self-hosted Ollama enforces NativeOutput schemas but Ollama Cloud does not. vLLM needs --enable-auto-tool-choice for tools. OpenAICompatibleProvider works with any OpenAI-shaped server; fix quirks with OpenAIModelProfile flags.</aside>
+</section>

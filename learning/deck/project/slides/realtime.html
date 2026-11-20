@@ -1,0 +1,20 @@
+<section id="realtime" class="alt">
+<p class="eyebrow">04 · Models &amp; interfaces</p>
+<h2>Realtime voice is the same agent, live</h2>
+<div class="split">
+<div class="code">
+<p>agent = Agent(instructions=<span class="s">'You take reservations.'</span>)<br><br><span class="k">@agent.tool_plain</span><br><span class="k">async def</span> consult(question: str) -&gt; str:<br>&#160;&#160;&#160;&#160;<span class="s">"""Ask a text agent hard questions."""</span><br>&#160;&#160;&#160;&#160;<span class="k">return</span> (<span class="k">await</span> supervisor.run(question)).output<br><br><span class="k">async def</span> main():<br>&#160;&#160;&#160;&#160;rt = agent.realtime(<span class="s">'openai:gpt-realtime-2.1'</span>)<br>&#160;&#160;&#160;&#160;<span class="k">async with</span> rt.session() <span class="k">as</span> session:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">await</span> session.send(<span class="s">'Greet the caller.'</span>)<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">async for</span> ev <span class="k">in</span> session:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">if</span> isinstance(ev, RealtimeTurnCompleteEvent):<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="k">break</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;history = session.all_messages()&#160;&#160;<span class="c"># → text agent</span></p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>Audio</b>: 16-bit mono PCM; server VAD or push-to-talk.</li>
+<li><b>Providers</b>: OpenAI, Azure, Gemini Live, xAI, ElevenLabs.</li>
+<li><b>Deploy</b>: browser WebRTC + sideband, or a WebSocket relay.</li>
+<li>No output_type: hand the call’s <b>history to a text agent</b> for structured results.</li>
+<li>No test model: voice needs a real key.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Realtime · docs/realtime/*.md, examples/realtime_*</p>
+<aside>agent.realtime(model, ...) takes the same arguments as run (deps, instructions, toolsets, capabilities, usage limits, message_history or conversation) and returns an AgentRealtime; .session() opens a persistent RealtimeSession. Audio is raw signed 16-bit little-endian mono PCM: capture at session.audio_input_sample_rate and play at audio_output_sample_rate, in chunks of about 100 ms. Server voice-activity detection is the default; for push-to-talk set turn_detection=False and call send_audio, commit_audio, create_response. RealtimeTurnCompleteEvent is the only reliable end-of-turn signal. Tools run on your backend with the same validation, retries and hooks as text runs, but approval-gated tools need a HandleDeferredToolCalls capability because a call can’t pause. Realtime runs have no output_type, so the realtime_handoff example passes session.all_messages() to a text agent with output_type=SupportTicket. Deployment: with OpenAI and Azure, media can go browser-to-provider over WebRTC while your server attaches a sideband session that runs tools; note that close() on a sideband only detaches, and the call stays billed until hang_up(). Examples to try in order: realtime_text_to_audio, realtime_handoff, realtime_voice, realtime_webrtc, realtime_camera.</aside>
+</section>

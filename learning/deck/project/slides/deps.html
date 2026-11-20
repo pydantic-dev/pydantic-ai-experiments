@@ -1,0 +1,21 @@
+<section id="deps" class="alt">
+<p class="eyebrow">02 · Core agent</p>
+<h2>Dependencies and instructions, injected per run</h2>
+<div class="split">
+<div class="code">
+<p><span class="k">@dataclass</span><br><span class="k">class</span> Deps:<br>&#160;&#160;&#160;&#160;user: str<br>&#160;&#160;&#160;&#160;http: httpx.AsyncClient<br><br>agent = Agent(<span class="s">'test'</span>, deps_type=Deps,<br>&#160;&#160;&#160;&#160;instructions=<span class="s">"Use the customer's name."</span>)<br><br><span class="k">@agent.instructions</span>&#160;&#160;<span class="c"># re-run before every request</span><br><span class="k">def</span> who(ctx: RunContext[Deps]) -&gt; str:<br>&#160;&#160;&#160;&#160;<span class="k">return</span> f<span class="s">"The user's name is {ctx.deps.user}."</span><br><br><span class="k">@agent.tool</span><br><span class="k">async def</span> lookup(ctx: RunContext[Deps], q: str) -&gt; str:<br>&#160;&#160;&#160;&#160;r = <span class="k">await</span> ctx.deps.http.get(URL, params={<span class="s">'q'</span>: q})<br>&#160;&#160;&#160;&#160;<span class="k">return</span> r.text</p>
+</div>
+<div class="stack">
+<ul class="points">
+<li><b>deps</b>: DB pools, HTTP clients, keys, tenant IDs. No globals.</li>
+<li><b>Instructions</b> are static, dynamic (@agent.instructions) or per run. Prefer them to system_prompt.</li>
+<li><b>on_change='append'</b> adds changes as a delta, keeping the prompt cache warm.</li>
+<li><b>agent.override(deps=fake)</b> swaps deps in tests.</li>
+</ul>
+<p class="label" style="margin-top: 12px;">Never</p>
+<p class="lede" style="font-size: 28px;">build instructions from untrusted text: they carry operator authority.</p>
+</div>
+</div>
+<p class="foot">Pydantic AI Field Guide · Core agent · docs/dependencies.md, docs/agent.md#instructions</p>
+<aside>Dependency injection is how tools reach the outside world without globals. Declare deps_type on the agent, usually a dataclass, pass deps= on each run, and read ctx.deps in instructions, tools, output validators and hooks. deps_type is only used for type checking. Prefer async tools for I/O, because sync functions run in a thread pool. Instructions come in three forms: static on the Agent, dynamic with the @agent.instructions decorator (re-evaluated before every model request), and per run with run(instructions=...). Only the current agent’s instructions are sent, which matters in multi-agent setups. system_prompt, by contrast, is stored in message history and replayed on later runs. Use @agent.instructions(name='date', on_change='append') for state that changes mid-conversation: the change is appended as an InstructionDeltaPart instead of rewriting the start of the prompt, so prompt caching survives. TemplateStr('Hi {{name}}') renders fields from deps. Real-world use: the bank_support example looks up the customer name from a DB in dynamic instructions.</aside>
+</section>

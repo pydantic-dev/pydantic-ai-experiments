@@ -1,0 +1,18 @@
+<section id="providers">
+<p class="eyebrow">04 · Models &amp; interfaces</p>
+<h2>One string picks the model, provider and profile</h2>
+<table>
+<tr><th style="width: 26%;">Provider</th><th style="width: 42%;">Model string prefix</th><th>Auth</th></tr>
+<tr><td>OpenAI</td><td>openai: (Responses API) · openai-chat:</td><td>OPENAI_API_KEY</td></tr>
+<tr><td>Anthropic</td><td>anthropic:</td><td>ANTHROPIC_API_KEY</td></tr>
+<tr><td>Google</td><td>google: (Gemini API) · google-cloud: (Vertex)</td><td>GOOGLE_API_KEY or ADC</td></tr>
+<tr><td>Bedrock · Azure</td><td>bedrock: · azure: · azure-responses:</td><td>AWS credentials · AZURE_OPENAI_*</td></tr>
+<tr><td>Groq · Mistral · Cohere · xAI</td><td>groq: · mistral: · cohere: · xai:</td><td>&lt;NAME&gt;_API_KEY</td></tr>
+<tr><td>Local &amp; compatible</td><td>ollama: · vllm: · openrouter: · litellm:</td><td>Base URL, optional key</td></tr>
+<tr><td>Subscriptions</td><td>github-copilot: · openai-codex: · openai-chatgpt:</td><td>Device or account login</td></tr>
+<tr><td>Gateway · offline</td><td>gateway/openai:… · 'test'</td><td>Gateway key · none</td></tr>
+</table>
+<p class="lede" style="font-size: 28px; margin-top: 24px;">v2 change: <b>openai:</b> is the Responses API; <b>openai-chat:</b> is Chat Completions.</p>
+<p class="foot">Pydantic AI Field Guide · Models · docs/models/overview.md, docs/gateway.md</p>
+<aside>Three building blocks sit behind every model string. A Model class speaks one wire API (OpenAIResponsesModel, OpenAIChatModel, AnthropicModel, GoogleModel and so on). A Provider handles auth, base URL and the HTTP client. A Profile describes how to shape requests for that model family: schema rules, strict tools, structured-output support, context window and supported native tools. 'provider:model' builds all three; instantiate classes yourself only to override the provider (custom key, proxy, region) or the profile. Install the matching extra, e.g. pydantic-ai-slim[anthropic]. The Pydantic AI Gateway, managed through Logfire, gives one key for OpenAI, Anthropic, Google, Groq and Bedrock, with spend caps and failover endpoints: Agent('gateway/openai:gpt-6.1-sol'). Model names in the docs such as {{ openai:medium }} are docs-only aliases, not runtime syntax. KnownModelName is a Literal for autocomplete only. Separately, decision models (typesafe:, system-one: including local Ollama, openai-decisions:, google-decisions:) answer typed questions with probabilities and are a cheap way to classify.</aside>
+</section>
